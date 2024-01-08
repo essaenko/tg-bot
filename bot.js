@@ -95,7 +95,7 @@ fs.readFile('/home/essaenko/bot/cache.json', (error, data) => {
           `${index < 3 ? ladderStars[index] : '💩'} ${index + 1}: ${name} ${size}cm`)
         .join('\n').replaceAll('_', '\\_')}${
           position > 9 ? 
-            `\n...\n💩 ${position + 1}: ${username} ${size}cm` : 
+            `\n\\.\\.\\.\n💩 ${position + 1}: ${username} ${size}cm` : 
             ''
           }\n\n[Поддержать разработчика](https://www.donationalerts.com/r/essaenko)\n[Обсудить кок](https://t.me/flood_ru)`,
           parse_mode: 'MarkdownV2',
@@ -111,7 +111,7 @@ fs.readFile('/home/essaenko/bot/cache.json', (error, data) => {
           `${index < 3 ? ladderStars[index] : '💩'} ${index + 1}: ${name} ${chance}%`)
         .join('\n').replaceAll('_', '\\_')}${
           mobaPosition > 9 ? 
-            `\n...\n💩 ${mobaPosition + 1}: ${username} ${chance}%` : 
+            `\n\\.\\.\\.\n💩 ${mobaPosition + 1}: ${username} ${chance}%` : 
             ''
           }\n\n[Поддержать разработчика](https://www.donationalerts.com/r/essaenko)\n[Обсудить кок](https://t.me/flood_ru)`,
       parse_mode: 'MarkdownV2',
