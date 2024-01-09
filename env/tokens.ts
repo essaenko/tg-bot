@@ -1,1 +1,0 @@
-export const CockToken = 'mock_token';
