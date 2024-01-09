@@ -2,6 +2,7 @@ import TGBot from 'node-telegram-bot-api';
 import fs from 'fs';
 import process from 'node:process';
 import { CockToken } from '../env/tokens';
+import { errorLog, infoLog } from './utils';
 
 (() => {
   const bot = new TGBot(CockToken, { polling: true });
@@ -14,7 +15,7 @@ import { CockToken } from '../env/tokens';
 
   fs.readFile('/home/essaenko/bot/cache.json', 'utf8', (error: Error, data: string): void => {
     if (error) {
-      console.log('[ERROR] Reading cache: ', error);
+      errorLog('Reading cache', error);
 
       return;
     }
@@ -26,7 +27,7 @@ import { CockToken } from '../env/tokens';
         cache[key as keyof typeof cache] = jsonCache[key];
       })
     } catch (e) {
-      console.log('[ERROR] Corrupted cache file: ', e);
+      errorLog('Corrupted cache file: ', e);
     }
   });
 
@@ -42,7 +43,7 @@ import { CockToken } from '../env/tokens';
     let chance = Math.round(Math.random() * 100);
     let emoji = '';
 
-    console.log('New inline query from: ', query.from.username ?? ((query.from.first_name ?? '') + (query.from.last_name ?? '')))
+    infoLog('New inline query from: ', query.from.username ?? ((query.from.first_name ?? '') + (query.from.last_name ?? '')))
 
     if (cache.moba[username] != null) {
       chance = cache.moba[username];
@@ -121,54 +122,54 @@ import { CockToken } from '../env/tokens';
         disable_web_page_preview: true,
       },
     }], { cache_time: 0, is_personal: true }).catch((e) => {
-      console.log('[ERROR] Cant send answer for query: ', query, username, e);
+      errorLog(`Can't send answer for query: `, query, username, e)
     });
   });
 
   const today1AM = new Date();
   today1AM.setHours(1, 0, 0, 0);
 
-  const saveCache = () => {
-    console.log('Saving cache', new Date())
+  const dropCache = () => {
+    infoLog('Clearing cache')
+
     cache = {
       cock: {},
       moba: {},
     };
 
-    console.log('Cache cleared');
+    infoLog('Cache cleared');
 
-    fs.writeFile('/home/essaenko/bot/cache.json', JSON.stringify(cache), (error) => {
-      if (error) {
-        console.log('[ERROR] Cant write cache file: ', error);
-      } else {
-        console.log('Cache file writted');
-      }
-    });
+    saveCache();
 
     const today1AM = new Date();
     today1AM.setHours(1, 0, 0, 0);
 
-    setTimeout(saveCache, new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
-    console.log('Next cache drop settled', new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
+    setTimeout(dropCache, new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
+    infoLog(`Next cache drop settled: ${new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now()}`);
   }
 
-  setTimeout(saveCache, new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
-  console.log('Cache drop settled for:',new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
-
-  setInterval(() => {
-    console.log('Saving cache to file');
+  const saveCache = () => {
     fs.writeFile('/home/essaenko/bot/cache.json', JSON.stringify(cache), (error) => {
       if (error) {
-        console.log('[ERROR] Cant write cache file: ', error);
+        errorLog(`Can't write cache file: `, error);
       } else {
-        console.log('Cache file writted', new Date());
+        infoLog('Cache file writted')
       }
-    })
+    });
+  }
+
+  setTimeout(dropCache, new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
+  infoLog(`Cache drop settled for: ${new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now()}`);
+
+
+  setInterval(() => {
+    infoLog('Saving cache to file')
+    saveCache();
   }, 1000 * 60 * 60);
 
   process.on('exit', (code: number) => {
-    console.log('Process killed with code', code)
+    infoLog(`Process killed with code: ${code}`);
   });
 
-  console.log('Bot working');
+  infoLog('Booted');
 })()
