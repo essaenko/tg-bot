@@ -93,7 +93,7 @@ fs.readFile('/home/essaenko/bot/cache.json', (error, data) => {
       message_text: `Ladder:\n${
         ladder.map(([name, size], index) => 
           `${index < 3 ? ladderStars[index] : '💩'} ${index + 1}: ${name} ${size}cm`)
-        .join('\n').replaceAll('_', '\\_')}${
+        .join('\n').replaceAll('_', '\\_').replaceAll('.','\\.')}${
           position > 9 ? 
             `\n\\.\\.\\.\n💩 ${position + 1}: ${username} ${size}cm` : 
             ''
@@ -109,7 +109,7 @@ fs.readFile('/home/essaenko/bot/cache.json', (error, data) => {
       message_text: `Moba Ladder:\n${
         mobaLadder.map(([name, chance], index) => 
           `${index < 3 ? ladderStars[index] : '💩'} ${index + 1}: ${name} ${chance}%`)
-        .join('\n').replaceAll('_', '\\_')}${
+        .join('\n').replaceAll('_', '\\_').replaceAll('.','\\.')}${
           mobaPosition > 9 ? 
             `\n\\.\\.\\.\n💩 ${mobaPosition + 1}: ${username} ${chance}%` : 
             ''
