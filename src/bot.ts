@@ -57,7 +57,7 @@ import { errorLog, infoLog } from './utils';
 
     if (size <= 5) {
       emoji = '🤏';
-    } else if (size > 5 && size <= 8) {
+    } else if (size > 5 && size <= 10) {
       emoji = '🫛';
     } else if (size > 10 && size <= 15) {
       emoji = '👩'
@@ -94,10 +94,10 @@ import { errorLog, infoLog } from './utils';
       input_message_content: {
         message_text: `Ladder:\n${
           ladder.map(([name, size], index) => 
-            `${index < 3 ? ladderStars[index] : '💩'} ${index + 1}: ${name} ${size}cm`)
+            `${index < 3 ? ladderStars[index] : '💩'} ${index + 1}: ${name === username ? `👉 *${name}*` : name} ${size}cm`)
           .join('\n')}${
             position > 9 ? 
-              `\n...\n💩 ${position + 1}: ${username} ${size}cm` : 
+              `\n...\n💩 ${position + 1}: 👉 *${username}* ${size}cm` : 
               ''
             }`.replaceAll('_', '\\_').replaceAll('.','\\.') +
             `\n\n[Поддержать разработчика](https://www.donationalerts.com/r/essaenko)\n[Обсудить кок](https://t.me/flood_ru)`,
@@ -111,10 +111,10 @@ import { errorLog, infoLog } from './utils';
       input_message_content: {
         message_text: `Moba Ladder:\n${
           mobaLadder.map(([name, chance], index) => 
-            `${index < 3 ? ladderStars[index] : '💩'} ${index + 1}: ${name} ${chance}%`)
+            `${index < 3 ? ladderStars[index] : '💩'} ${index + 1}: ${name === username ? `👉 *${name}*` : name} ${chance}%`)
           .join('\n').replaceAll('_', '\\_').replaceAll('.','\\.')}${
             mobaPosition > 9 ? 
-              `\n...\n💩 ${mobaPosition + 1}: ${username} ${chance}%` : 
+              `\n...\n💩 ${mobaPosition + 1}: 👉 *${username}* ${chance}%` : 
               ''
             }`.replaceAll('_', '\\_').replaceAll('.','\\.') +
             `\n\n[Поддержать разработчика](https://www.donationalerts.com/r/essaenko)\n[Обсудить кок](https://t.me/flood_ru)`,
@@ -125,6 +125,56 @@ import { errorLog, infoLog } from './utils';
       errorLog(`Can't send answer for query: `, query, username, e)
     });
   });
+
+  bot.on('message', (message): void => {
+    if (message.from.username === 'essaenko') {
+      const command = message.entities?.find(({ type }) => type === 'bot_command');
+
+      if (command) {
+        switch(message.text.slice(command.offset, command.length)) {
+          case '/get_cock_list': {
+            bot.sendMessage(message.chat.id, Object.entries(cache.cock).map(([name, size]) => `${name}: ${size}`).join('\n'));
+
+            break;
+          }
+          case '/get_moba_list': {
+            bot.sendMessage(message.chat.id, Object.entries(cache.moba).map(([name, chance]) => `${name}: ${chance}`).join('\n'));
+
+            break;
+          }
+          case '/set_cock_size': {
+            const [_, user, size] = message.text?.split(' ');
+            if (!Number.isNaN(+size)) {
+              cache.cock[user] = +size;
+
+              bot.sendMessage(message.chat.id, `Cock ${size}cm is settled for ${user}: \n ${
+                Object.entries(cache.cock).map(([name, size]) => `${name}: ${size}`).join('\n')
+              }`);
+              break;
+            }
+            bot.sendMessage(message.chat.id, 'NaN as size, fuck off!');
+
+            break;
+          }
+          case '/set_moba_chance': {
+            const [_, user, chance] = message.text?.split(' ');
+            if (!Number.isNaN(+chance)) {
+              cache.moba[user] = +chance;
+
+              bot.sendMessage(message.chat.id, `Chance ${chance}% is settled for ${user}: \n ${
+                Object.entries(cache.moba).map(([name, chance]) => `${name}: ${chance}`).join('\n')
+              }`);
+
+              break;
+            }
+            bot.sendMessage(message.chat.id, 'NaN as chance, fuck off!');
+
+            break;
+          }
+        }
+      }
+    }
+  })
 
   const today1AM = new Date();
   today1AM.setHours(1, 0, 0, 0);

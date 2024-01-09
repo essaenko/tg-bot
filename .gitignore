@@ -1,7 +1,8 @@
 node_modules/
 dist/
-env/
+env/tokens.ts
 tokens.js
 cache.json
 parse.js
 nohup.out
+build.sh
