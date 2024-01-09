@@ -1,6 +1,6 @@
 node_modules/
 dist/
-env/
+env/tokens_1.ts
 tokens.js
 cache.json
 parse.js
