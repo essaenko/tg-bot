@@ -1,5 +1,6 @@
 const TGBot = require('node-telegram-bot-api');
 const fs = require('fs');
+const process = require('node:process');
 
 const { cock_token } = require('./tokens');
 
@@ -146,10 +147,11 @@ const saveCache = () => {
   today1AM.setHours(1, 0, 0, 0);
 
   setTimeout(saveCache, new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
-  console.log('Next cache drop settled');
+  console.log('Next cache drop settled', new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
 }
 
 setTimeout(saveCache, new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
+console.log('Cache drop settled for:',new Date(today1AM.getTime() + 1000 * 60 * 60 * 24).getTime() - Date.now());
 
 setInterval(() => {
   console.log('Saving cache to file');
@@ -161,5 +163,9 @@ setInterval(() => {
     }
   })
 }, 1000 * 60 * 60);
+
+process.on('exit', (code) => {
+  console.log('Process killed with code', code)
+});
 
 console.log('Bot working');
