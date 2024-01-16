@@ -10,6 +10,11 @@ import { errorLog, infoLog } from './utils';
     cock: {},
     moba: {},
   }
+  const stats = {
+    calls: 0,
+    errors: 0,
+    latestError: '',
+  }
 
   const ladderStars = ['🥇', '🥈', '🥉']
 
@@ -32,6 +37,7 @@ import { errorLog, infoLog } from './utils';
   });
 
   bot.on('inline_query', (query) => {
+    stats.calls += 1;
     const username = query.from.username ?? ((query.from.first_name ?? '') + (query.from.last_name ?? ''));
     const standings = Object.entries(cache.cock).sort(([_, sizeA], [_1, sizeB]) => sizeB - sizeA)
     const mobaStandings = Object.entries(cache.moba).sort(([_, sizeA], [_1, sizeB]) => sizeB - sizeA)
@@ -112,7 +118,7 @@ import { errorLog, infoLog } from './utils';
         message_text: `Moba Ladder:\n${
           mobaLadder.map(([name, chance], index) => 
             `${index < 3 ? ladderStars[index] : '💩'} ${index + 1}: ${name === username ? `👉 *${name}*` : name} ${chance}%`)
-          .join('\n').replaceAll('_', '\\_').replaceAll('.','\\.')}${
+          .join('\n')}${
             mobaPosition > 9 ? 
               `\n...\n💩 ${mobaPosition + 1}: 👉 *${username}* ${chance}%` : 
               ''
@@ -122,7 +128,9 @@ import { errorLog, infoLog } from './utils';
         disable_web_page_preview: true,
       },
     }], { cache_time: 0, is_personal: true }).catch((e) => {
-      errorLog(`Can't send answer for query: `, query, username, e)
+      stats.errors += 1;
+      stats.latestError = `${username}: ${e.toString()}`
+      errorLog(`Can't send answer for query: `, username, e)
     });
   });
 
@@ -171,6 +179,27 @@ import { errorLog, infoLog } from './utils';
 
             break;
           }
+          case '/get_stats': {
+            bot.sendMessage(message.chat.id, 
+              `Usage stats:\nCalls: ${
+                stats.calls
+              }\nUsers in cock ladder: ${
+                Object.keys(cache.cock).length
+              }\nUsers in Moba ladder: ${
+                Object.keys(cache.moba).length
+              }\n\nErrors:\nCount: ${
+                stats.errors
+              }\nLatest Error: ${
+                stats.latestError
+              }`)
+
+            break;
+          }
+          case '/start': {
+            bot.sendMessage(message.chat.id, `Commands (admin prev only!):\n/get_cock_list - display all users with cocks\n/get_moba_list - display all users with moba chances\n/set_cock_size [username] [size] - set user cock size\n/set_moba_chance [username] [chance] - seet user moba chance\n/get_stats - usage and error stats`);
+
+            break;
+          }
         }
       }
     }
@@ -186,6 +215,8 @@ import { errorLog, infoLog } from './utils';
       cock: {},
       moba: {},
     };
+    stats.calls = 0;
+    stats.errors = 0;
 
     infoLog('Cache cleared');
 
