@@ -174,6 +174,25 @@ import { errorLog, infoLog } from './utils';
 
             break;
           }
+          case '/change_log': {
+            fs.readFile('/home/essaenko/bot/change-log.json', 'utf8', (error: Error, data: string): void => {
+              if (error) {
+                errorLog('Reading change log', error);
+          
+                return;
+              }
+          
+              try {
+                const changeLog = JSON.parse(data);
+          
+                bot.sendMessage(message.chat.id, changeLog.map(({ version, change }: { version: string, change: string }) => `${version} - ${change}`));
+              } catch (e) {
+                errorLog('Corrupted change log file: ', e);
+              }
+            });
+
+            break;
+          }
           case '/set_cock_size': {
             const [_, user, size] = message.text?.split(' ');
             if (!Number.isNaN(+size)) {
