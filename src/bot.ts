@@ -36,17 +36,41 @@ import { errorLog, infoLog } from './utils';
     }
   });
 
+  const gaussRandomNumber = (max: number = 100, attempts: number = 40): number => {
+    let result: number = 0;
+    let attempt: number = 0;
+    while (attempt < attempts) {
+      result += Math.random() * (max / attempts);
+  
+      attempt += 1;
+    }
+  
+    return Math.round(result);
+  }
+  
+  const getCockSize = (): number => {
+    const point: number = Math.random() * 100;
+  
+    if (point <= 10) {
+      return gaussRandomNumber(7);
+    } else if (point >= 95) {
+      return Math.floor(Math.random() * (45 - 35 + 1)) + 35;
+    } else {
+      return gaussRandomNumber(35);
+    }
+  }
+
   bot.on('inline_query', (query) => {
     stats.calls += 1;
     const username = query.from.username ?? ((query.from.first_name ?? '') + (query.from.last_name ?? ''));
     const standings = Object.entries(cache.cock).sort(([_, sizeA], [_1, sizeB]) => sizeB - sizeA)
-    const mobaStandings = Object.entries(cache.moba).sort(([_, sizeA], [_1, sizeB]) => sizeB - sizeA)
+    const mobaStandings = Object.entries(cache.moba).sort(([_, sizeA], [_1, sizeB]) => sizeA - sizeB)
     const ladder = standings.slice(0, 10);
     const mobaLadder = mobaStandings.slice(0, 10);
     const position = standings.findIndex(([name]) => name === username);
     const mobaPosition = mobaStandings.findIndex(([name]) => name === username);
-    let size = Math.round(Math.random() * 45);
-    let chance = Math.round(Math.random() * 100);
+    let size = getCockSize();
+    let chance = gaussRandomNumber();
     let emoji = '';
 
     infoLog('New inline query from: ', query.from.username ?? ((query.from.first_name ?? '') + (query.from.last_name ?? '')))
