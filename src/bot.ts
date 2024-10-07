@@ -263,6 +263,7 @@ import { errorLog, infoLog } from './utils';
     cache = {
       cock: {},
       moba: {},
+      gay: {},
     };
     stats.calls = 0;
     stats.errors = 0;
