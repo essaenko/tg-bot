@@ -6,9 +6,10 @@ import { errorLog, infoLog } from './utils';
 
 (() => {
   const bot = new TGBot(CockToken, { polling: true });
-  let cache: { cock: Record<string, number>, moba: Record<string, number> } = {
+  let cache: { cock: Record<string, number>, moba: Record<string, number>, gay: Record<string, number> } = {
     cock: {},
     moba: {},
+    gay: {},
   }
   const stats = {
     calls: 0,
@@ -35,28 +36,16 @@ import { errorLog, infoLog } from './utils';
       errorLog('Corrupted cache file: ', e);
     }
   });
-
-  const gaussRandomNumber = (max: number = 100, attempts: number = 40): number => {
-    let result: number = 0;
-    let attempt: number = 0;
-    while (attempt < attempts) {
-      result += Math.random() * (max / attempts);
-  
-      attempt += 1;
-    }
-  
-    return Math.round(result);
-  }
   
   const getCockSize = (): number => {
     const point: number = Math.random() * 100;
   
     if (point <= 10) {
-      return gaussRandomNumber(7);
+      return Math.round(Math.random() * 7);
     } else if (point >= 95) {
       return Math.floor(Math.random() * (45 - 35 + 1)) + 35;
     } else {
-      return gaussRandomNumber(35);
+      return Math.floor(Math.random() * (35 - 7 + 1)) + 7;
     }
   }
 
@@ -70,7 +59,8 @@ import { errorLog, infoLog } from './utils';
     const position = standings.findIndex(([name]) => name === username);
     const mobaPosition = mobaStandings.findIndex(([name]) => name === username);
     let size = getCockSize();
-    let chance = gaussRandomNumber();
+    let chance = Math.round(Math.random() * 100);
+    let gay = Math.round(Math.random() * 100);
     let emoji = '';
 
     infoLog('New inline query from: ', query.from.username ?? ((query.from.first_name ?? '') + (query.from.last_name ?? '')))
@@ -82,8 +72,14 @@ import { errorLog, infoLog } from './utils';
     if (cache.cock[username] != null) {
       size = cache.cock[username];
     }
+
+    if (cache.gay[username] != null) {
+      gay = cache.gay[username];
+    }
+    
     cache.cock[username] = size;
     cache.moba[username] = chance;
+    cache.gay[username] = gay;
 
     if (size <= 5) {
       emoji = '🤏';
@@ -108,7 +104,7 @@ import { errorLog, infoLog } from './utils';
       input_message_content: {
         message_text: `Мой кок: ${emoji}${size}см`
       },
-    }, 
+    },
     {
       id: query.id + `_${Math.round(Math.random() * 10000)}`,
       type: 'article',
@@ -117,7 +113,17 @@ import { errorLog, infoLog } from './utils';
         message_text: `Шанс моей мобилизации: *${chance}%*`,
         parse_mode: 'MarkdownV2'
       },
-    },{
+    },
+    {
+      id: query.id + `_${Math.round(Math.random() * 10000)}`,
+      type: 'article',
+      title: 'На сколько я гей',
+      input_message_content: {
+        message_text: `Я гей на: *${chance}%* 🏳️‍🌈`,
+        parse_mode: 'MarkdownV2'
+      },
+    },
+    {
       id: query.id + `_${Math.round(Math.random() * 10000)}`,
       type: 'article',
       title: 'Ladder',
