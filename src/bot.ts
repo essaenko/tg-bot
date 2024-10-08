@@ -119,7 +119,7 @@ import { errorLog, infoLog } from './utils';
       type: 'article',
       title: 'На сколько я гей',
       input_message_content: {
-        message_text: `Я гей на: *${chance}%* 🏳️‍🌈`,
+        message_text: `Я гей на: *${gay}%* 🏳️‍🌈`,
         parse_mode: 'MarkdownV2'
       },
     },
